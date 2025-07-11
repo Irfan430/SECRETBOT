@@ -1,5 +1,19 @@
-process.on('unhandledRejection', error => console.log(error));
-process.on('uncaughtException', error => console.log(error));
+process.on('unhandledRejection', (reason, promise) => {
+	console.error('Unhandled Rejection at:', promise, 'reason:', reason);
+	// Application specific logging, throwing, or other logic here
+	if (global.utils && global.utils.log) {
+		global.utils.log.err('UNHANDLED REJECTION', reason);
+	}
+});
+
+process.on('uncaughtException', (error) => {
+	console.error('Uncaught Exception:', error);
+	if (global.utils && global.utils.log) {
+		global.utils.log.err('UNCAUGHT EXCEPTION', error);
+	}
+	// For uncaught exceptions, it's often best to gracefully shutdown
+	process.exit(1);
+});
 
 const axios = require("axios");
 const fs = require("fs-extra");

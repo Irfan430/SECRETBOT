@@ -447,11 +447,17 @@ async function getAppStateToLogin(loginWithEmail) {
 			}
 			else if (
 				(splitAccountText.length == 2 || splitAccountText.length == 3) &&
-				!splitAccountText.slice(0, 2).map(i => i.trim()).some(i => i.includes(' '))
+				!splitAccountText.slice(0, 2).map(i => i.trim()).some(i => i.includes(' ')) &&
+				// Fix: Additional validation to prevent parsing "[]" as email/password
+				!accountText.trim().startsWith('[') &&
+				!accountText.trim().startsWith('{') &&
+				splitAccountText[0].trim().length > 0 &&
+				splitAccountText[1].trim().length > 0 &&
+				// Check if it looks like email format
+				(splitAccountText[0].includes('@') || splitAccountText[0].includes('.'))
 			) {
-				// bug if account.txt is "[]"
-				global.GoatBot.config.facebookAccount.email = splitAccountText[0]; // bug here=> email is "["
-				global.GoatBot.config.facebookAccount.password = splitAccountText[1]; // bug here=> password is "]"
+				global.GoatBot.config.facebookAccount.email = splitAccountText[0].trim();
+				global.GoatBot.config.facebookAccount.password = splitAccountText[1].trim();
 				if (splitAccountText[2]) {
 					const code2FATemp = splitAccountText[2].replace(/ /g, "");
 					global.GoatBot.config.facebookAccount['2FASecret'] = code2FATemp;
